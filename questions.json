@@ -1,0 +1,44 @@
+[
+  {
+    "id": 1,
+    "question": "Մարդկանց փոխազդեցությունը բնության գործընթացների հետ կոչվում է",
+    "answers": [
+      { "text": "Ա․ Արտադրություն է", "correct": false },
+      { "text": "Բ․ Թույլատրելի է", "correct": true },
+      { "text": "Գ․ Թույլատրելի է միայն որոշակի պայմաններում", "correct": false },
+      { "text": "Դ․ Այլ տարբերակ", "correct": false }
+    ]
+  },
+  {
+    "id": 2,
+    "image": "3589863.png",
+    "question": "Երկիրը պտտվում է շուրջ",
+    "answers": [
+      { "text": "Ա․ Լուսնի", "correct": false },
+      { "text": "Բ․ Արեգակի", "correct": true },
+      { "text": "Գ․ Մարսի", "correct": false },
+      { "text": "Դ․ Ոչ մեկի", "correct": false }
+    ]
+  },
+  {
+    "id": 3,
+    "image": "images.png",
+    "question": "Ջուրը սառչում է քանի աստիճանում",
+    "answers": [
+      { "text": "Ա․ 0°C", "correct": true },
+      { "text": "Բ․ 100°C", "correct": false },
+      { "text": "Գ․ 50°C", "correct": false },
+      { "text": "Դ․ 10°C", "correct": false }
+    ]
+  },
+  {
+    "id": 4,
+    "question": "Արևը ինչ է",
+    "answers": [
+      { "text": "Ա․ Մոլորակ", "correct": false },
+      { "text": "Բ․ Աստղ", "correct": true },
+      { "text": "Գ․ Լուսին", "correct": false },
+      { "text": "Դ․ Քար", "correct": false }
+    ]
+  }
+]
