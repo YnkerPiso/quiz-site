@@ -1,44 +1,42 @@
 [
   {
-    "id": 1,
-    "question": "Մարդկանց փոխազդեցությունը բնության գործընթացների հետ կոչվում է",
+    "id": 1687,
+    "image": "image.png",
+    "question": "Ո՞րն է լույսի ուղղագիծ տարածման օրենքը:",
     "answers": [
-      { "text": "Ա․ Արտադրություն է", "correct": false },
-      { "text": "Բ․ Թույլատրելի է", "correct": true },
-      { "text": "Գ․ Թույլատրելի է միայն որոշակի պայմաններում", "correct": false },
-      { "text": "Դ․ Այլ տարբերակ", "correct": false }
+      {
+        "text": "Լույսը համասեռ միջավայրում տարածվում է ուղղագիծ:",
+        "correct": false
+      },
+      {
+        "text": "Լույսը թափանցիկ միջավայրում տարածվում է ուղղագիծ:",
+        "correct": false
+      },
+      {
+        "text": "Լույսը թափանցիկ, օպտիկապես համասեռ միջավայրում տարածվում է ուղղագիծ:",
+        "correct": true
+      },
+      { "text": "Լույսը միշտ տարածվում է ուղղագիծ:", "correct": false }
     ]
   },
   {
-    "id": 2,
-    "image": "3589863.png",
-    "question": "Երկիրը պտտվում է շուրջ",
+    "id": 1688,
+    "image": "image.png",
+    "question": "Ո՞րն է լույսի ուղղագիծ տարածման օրենքը:",
     "answers": [
-      { "text": "Ա․ Լուսնի", "correct": false },
-      { "text": "Բ․ Արեգակի", "correct": true },
-      { "text": "Գ․ Մարսի", "correct": false },
-      { "text": "Դ․ Ոչ մեկի", "correct": false }
-    ]
-  },
-  {
-    "id": 3,
-    "image": "images.png",
-    "question": "Ջուրը սառչում է քանի աստիճանում",
-    "answers": [
-      { "text": "Ա․ 0°C", "correct": true },
-      { "text": "Բ․ 100°C", "correct": false },
-      { "text": "Գ․ 50°C", "correct": false },
-      { "text": "Դ․ 10°C", "correct": false }
-    ]
-  },
-  {
-    "id": 4,
-    "question": "Արևը ինչ է",
-    "answers": [
-      { "text": "Ա․ Մոլորակ", "correct": false },
-      { "text": "Բ․ Աստղ", "correct": true },
-      { "text": "Գ․ Լուսին", "correct": false },
-      { "text": "Դ․ Քար", "correct": false }
+      {
+        "text": "Լույսը համասեռ միջավայրում տարածվում է ուղղագիծ:",
+        "correct": false
+      },
+      {
+        "text": "Լույսը թափանցիկ միջավայրում տարածվում է ուղղագիծ:",
+        "correct": false
+      },
+      {
+        "text": "Լույսը թափանցիկ, օպտիկապես համասեռ միջավայրում տարածվում է ուղղագիծ:",
+        "correct": true
+      },
+      { "text": "Լույսը միշտ տարածվում է ուղղագիծ:", "correct": false }
     ]
   }
 ]

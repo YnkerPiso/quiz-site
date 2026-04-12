@@ -1,79 +1,74 @@
-// 🔥 FIREBASE IMPORTS
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
-import { getAuth } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc } 
-from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-// 🔥 CONFIG
-const firebaseConfig = {
-  apiKey: "AIzaSyANzIW_EqzkHVDzpZaD41LkMHugULjsFFk",
-  authDomain: "quiz-app-e973d.firebaseapp.com",
-  projectId: "quiz-app-e973d",
-  storageBucket: "quiz-app-e973d.firebasestorage.app",
-  messagingSenderId: "14843518571",
-  appId: "1:14843518571:web:266c44f0a84001517c5b2e"
-};
+<title>Quiz</title>
 
-// INIT
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+<link rel="icon" type="image/png" href="icon.png">
+<link rel="stylesheet" href="style.css">
 
-// 🔥 QUIZ VARIABLES
+</head>
+
+<body>
+
+<!-- 🔙 BACK BUTTON -->
+<button class="back-button" onclick="goBack()">←</button>
+
+<!-- ✅ QUESTION BOX -->
+<div class="question-box">
+  <div id="question" class="question"></div>
+</div>
+
+<!-- 🖼 IMAGE BETWEEN QUESTION & ANSWERS -->
+<div id="image-container" class="image-wrapper"></div>
+
+<!-- ✅ ANSWERS -->
+<div id="answers" class="answers"></div>
+
+<!-- ✅ FEEDBACK -->
+<div id="feedback" class="feedback">
+  <h2 id="feedback-title"></h2>
+  <p id="feedback-text"></p>
+  <button onclick="nextQuestion()">ՇԱՐՈՒՆԱԿԵԼ</button>
+</div>
+
+<!-- ✅ PROGRESS -->
+<div class="progress-wrapper">
+  <div id="progress-text" class="progress-text">0/0</div>
+
+  <div class="progress-container">
+    <div id="progress-bar" class="progress-bar"></div>
+  </div>
+</div>
+
+<!-- ✅ SCRIPT -->
+<script>
+
 let quiz = [];
 let filteredQuiz = [];
 let currentQuestion = 0;
 let score = 0;
 let answeredCount = 0;
 
-// 🔥 SAVE CORRECT ANSWERS PER USER
-let answeredCorrectly = {};
-
-// RANGE
+/* 🔥 SET RANGE HERE */
 const START_ID = 1687;
 const END_ID = 1688;
 
-// 🔥 LOAD USER DATA FROM FIREBASE
-async function loadUserProgress() {
-  const user = auth.currentUser;
-  if (!user) return;
-
-  const ref = doc(db, "users", user.uid);
-  const snap = await getDoc(ref);
-
-  if (snap.exists()) {
-    const data = snap.data();
-    answeredCorrectly = data.answeredCorrectly || {};
-  }
-}
-
-// 🔥 SAVE TO FIREBASE
-async function saveProgress() {
-  const user = auth.currentUser;
-  if (!user) return;
-
-  const ref = doc(db, "users", user.uid);
-
-  await setDoc(ref, {
-    answeredCorrectly: answeredCorrectly
-  }, { merge: true });
-}
-
-// LOAD QUESTIONS
+// Load questions
 fetch("questions.json")
   .then(res => res.json())
-  .then(async data => {
+  .then(data => {
     quiz = data;
 
+    // filter by ID range
     filteredQuiz = quiz.filter(q => q.id >= START_ID && q.id <= END_ID);
-
-    await loadUserProgress(); // 🔥 LOAD USER DATA
 
     loadQuestion();
     updateProgress();
   });
 
-// LOAD QUESTION
 function loadQuestion() {
   const q = filteredQuiz[currentQuestion];
 
@@ -82,9 +77,10 @@ function loadQuestion() {
     return;
   }
 
+  // ✅ QUESTION TEXT
   document.getElementById("question").innerText = q.question;
 
-  // IMAGE
+  // ✅ IMAGE
   const imageContainer = document.getElementById("image-container");
   imageContainer.innerHTML = "";
 
@@ -92,10 +88,11 @@ function loadQuestion() {
     const img = document.createElement("img");
     img.src = q.image;
     img.className = "question-image";
+    img.alt = "Question Image";
     imageContainer.appendChild(img);
   }
 
-  // ANSWERS
+  // ✅ ANSWERS WITH AUTO NUMBERING
   const answersDiv = document.getElementById("answers");
   answersDiv.innerHTML = "";
 
@@ -103,16 +100,16 @@ function loadQuestion() {
     const btn = document.createElement("button");
     btn.className = "answer";
 
+    // 🔥 AUTO NUMBERING (1–4)
     btn.innerText = (index + 1) + ". " + ans.text;
 
-    btn.onclick = () => checkAnswer(btn, ans.correct);
+    btn.onclick = () => checkAnswer(btn, index);
 
     answersDiv.appendChild(btn);
   });
 }
 
-// CHECK ANSWER
-function checkAnswer(btn, isCorrect) {
+function checkAnswer(btn, index) {
   const all = document.querySelectorAll(".answer");
   all.forEach(b => b.disabled = true);
 
@@ -120,28 +117,24 @@ function checkAnswer(btn, isCorrect) {
   const title = document.getElementById("feedback-title");
   const text = document.getElementById("feedback-text");
 
-  // SHOW CORRECT ANSWER
+  const correctIndex = filteredQuiz[currentQuestion].answers.findIndex(a => a.correct);
+
+  // ✅ highlight correct answer (FIXED)
   all.forEach((b, i) => {
-    if (filteredQuiz[currentQuestion].answers[i].correct) {
+    if (i === correctIndex) {
       b.classList.add("correct");
     }
   });
 
-  if (isCorrect) {
+  if (index === correctIndex) {
     score++;
-
-    // 🔥 SAVE THIS QUESTION AS CORRECT
-    const qId = filteredQuiz[currentQuestion].id;
-    answeredCorrectly[qId] = true;
-
-    saveProgress(); // 🔥 SAVE TO FIREBASE
-
     title.innerText = "Ճիշտ է";
     text.innerText = "Դուք ճիշտ պատասխանեցիք";
     feedback.className = "feedback correct-bg show";
+
+    saveCorrectAnswer(filteredQuiz[currentQuestion].id);
   } else {
     btn.classList.add("wrong");
-
     title.innerText = "Սխալ է";
     text.innerText = "Ճիշտ պատասխանը նշված է կանաչով";
     feedback.className = "feedback wrong-bg show";
@@ -151,7 +144,6 @@ function checkAnswer(btn, isCorrect) {
   updateProgress();
 }
 
-// NEXT QUESTION
 function nextQuestion() {
   document.getElementById("feedback").classList.remove("show");
 
@@ -164,7 +156,6 @@ function nextQuestion() {
   }
 }
 
-// END QUIZ
 function endQuiz() {
   document.getElementById("question").innerText =
     `Ավարտվեց 🎉 Ձեր միավորն է ${score}/${filteredQuiz.length}`;
@@ -173,7 +164,6 @@ function endQuiz() {
   document.getElementById("image-container").innerHTML = "";
 }
 
-// PROGRESS BAR
 function updateProgress() {
   const percent = (answeredCount / filteredQuiz.length) * 100;
 
@@ -182,7 +172,18 @@ function updateProgress() {
     answeredCount + "/" + filteredQuiz.length;
 }
 
-// BACK BUTTON
 function goBack() {
   window.history.back();
 }
+
+// ✅ Save correct answers globally
+function saveCorrectAnswer(id) {
+  let saved = JSON.parse(localStorage.getItem("answeredCorrectly") || "{}");
+  saved[id] = true;
+  localStorage.setItem("answeredCorrectly", JSON.stringify(saved));
+}
+
+</script>
+
+</body>
+</html>

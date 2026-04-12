@@ -2,156 +2,75 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Start Page</title>
+<title>Login - Quiz App</title>
 
 <style>
 body {
-  font-family: Arial, sans-serif;
-  background-color: #f5f5f5;
+  font-family: Arial;
+  background: #f5f5f5;
   display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
   height: 100vh;
 }
 
-/* 🔴 Circle */
-.circle {
-  width: 180px;
-  height: 180px;
-  border-radius: 50%;
-  background: conic-gradient(#c62828 0%, #ddd 0%);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 40px;
-  position: relative;
+.container {
+  background: white;
+  padding: 30px;
+  border-radius: 15px;
+  width: 300px;
+  text-align: center;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.1);
 }
 
-.circle::before {
-  content: "";
-  width: 130px;
-  height: 130px;
-  background: #f5f5f5;
-  border-radius: 50%;
-  position: absolute;
-}
-
-/* Percentage text */
-.circle-text {
-  position: relative;
-  font-size: 28px;
-  font-weight: bold;
-  color: #4a1c1c;
-}
-
-/* Button container */
-.button-container {
-  width: 80%;
-  max-width: 600px;
-}
-
-/* Start button */
-.custom-button {
-  background-color: #0f6d4d;
-  color: white;
-  border: none;
-  border-radius: 20px;
-  padding: 18px 20px;
+input {
   width: 100%;
-  font-size: 18px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  cursor: pointer;
-  margin-bottom: 15px;
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 10px;
+  border: 1px solid #ccc;
 }
 
-.custom-button:hover {
-  background-color: #0c5a3f;
-}
-
-/* 🔥 RESET BUTTON (THIS WAS MISSING) */
-.reset-button {
+button {
   width: 100%;
-  padding: 14px;
-  border-radius: 20px;
+  padding: 12px;
+  margin-top: 10px;
+  border-radius: 10px;
   border: none;
-  background: #c62828;
+  background: #0f6d4d;
   color: white;
   font-size: 16px;
   cursor: pointer;
 }
 
-.reset-button:hover {
-  background: #a61b1b;
+.register {
+  background: #1976d2;
 }
 
-/* Arrow */
-.arrow {
-  font-size: 22px;
+.error {
+  color: red;
+  margin-top: 10px;
 }
 </style>
 </head>
 
 <body>
 
-<!-- 🔥 Circle -->
-<div class="circle" id="progress-circle">
-  <div class="circle-text" id="progress-text">0%</div>
+<div class="container">
+  <h2>Login</h2>
+
+  <!-- 🔥 IMPORTANT IDS -->
+  <input type="email" id="email" placeholder="Email">
+  <input type="password" id="password" placeholder="Password">
+
+  <button id="loginBtn">Login</button>
+  <button id="registerBtn" class="register">Register</button>
+
+  <div id="error" class="error"></div>
 </div>
 
-<!-- Buttons -->
-<div class="button-container">
-  <button class="custom-button" onclick="startQuiz()">
-    <span>Սկսել</span>
-    <span class="arrow">›</span>
-  </button>
-
-  <button onclick="resetProgress()" class="reset-button">
-    Reset Progress
-  </button>
-</div>
-
-<script>
-function loadProgress() {
-  fetch("questions.json")
-    .then(res => res.json())
-    .then(data => {
-      const total = data.length;
-
-      const saved = localStorage.getItem("answeredCorrectly");
-
-      let correctCount = 0;
-
-      if (saved) {
-        const obj = JSON.parse(saved);
-        correctCount = data.filter(q => obj[q.id]).length;
-      }
-
-      const percent = Math.round((correctCount / total) * 100);
-
-      const circle = document.getElementById("progress-circle");
-      circle.style.background =
-        `conic-gradient(#0f6d4d ${percent}%, #ddd ${percent}%)`;
-
-      document.getElementById("progress-text").innerText = percent + "%";
-    });
-}
-
-function resetProgress() {
-  localStorage.removeItem("answeredCorrectly");
-  localStorage.removeItem("totalQuestions");
-  loadProgress();
-}
-
-function startQuiz() {
-  window.location.href = "nextpage.html";
-}
-
-// Load on start
-loadProgress();
-</script>
+<!-- 🔥 LOAD AUTH SCRIPT -->
+<script type="module" src="auth.js"></script>
 
 </body>
 </html>
