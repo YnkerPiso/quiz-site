@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Quiz</title>
+
+<link rel="icon" type="image/png" href="icon.png">
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+<!-- 🔙 BACK BUTTON -->
+<button class="back-button" onclick="goBack()">←</button>
+
+<!-- ✅ QUESTION BOX -->
+<div class="question-box">
+  <div id="question" class="question"></div>
+</div>
+
+<!-- 🖼 IMAGE BETWEEN QUESTION & ANSWERS -->
+<div id="image-container" class="image-wrapper"></div>
+
+<!-- ✅ ANSWERS -->
+<div id="answers" class="answers"></div>
+
+<!-- ✅ FEEDBACK -->
+<div id="feedback" class="feedback">
+  <h2 id="feedback-title"></h2>
+  <p id="feedback-text"></p>
+  <button onclick="nextQuestion()">ՇԱՐՈՒՆԱԿԵԼ</button>
+</div>
+
+<!-- ✅ PROGRESS -->
+<div class="progress-wrapper">
+  <div id="progress-text" class="progress-text">0/0</div>
+
+  <div class="progress-container">
+    <div id="progress-bar" class="progress-bar"></div>
+  </div>
+</div>
+
+<!-- ✅ SCRIPT -->
+<script>
+
+let quiz = [];
+let filteredQuiz = [];
+let currentQuestion = 0;
+let score = 0;
+let answeredCount = 0;
+
+/* 🔥 SET RANGE HERE */
+const START_ID = 1687;
+const END_ID = 1688;
+
+// Load questions
+fetch("questions.json")
+  .then(res => res.json())
+  .then(data => {
+    quiz = data;
+
+    // filter by ID range
+    filteredQuiz = quiz.filter(q => q.id >= START_ID && q.id <= END_ID);
+
+    loadQuestion();
+    updateProgress();
+  });
+
+function loadQuestion() {
+  const q = filteredQuiz[currentQuestion];
+
+  if (!q) {
+    endQuiz();
+    return;
+  }
+
+  // ✅ QUESTION TEXT
+  document.getElementById("question").innerText = q.question;
+
+  // ✅ IMAGE
+  const imageContainer = document.getElementById("image-container");
+  imageContainer.innerHTML = "";
+
+  if (q.image) {
+    const img = document.createElement("img");
+    img.src = q.image;
+    img.className = "question-image";
+    img.alt = "Question Image";
+    imageContainer.appendChild(img);
+  }
+
+  // ✅ ANSWERS WITH AUTO NUMBERING
+  const answersDiv = document.getElementById("answers");
+  answersDiv.innerHTML = "";
+
+  q.answers.forEach((ans, index) => {
+    const btn = document.createElement("button");
+    btn.className = "answer";
+
+    // 🔥 AUTO NUMBERING (1–4)
+    btn.innerText = (index + 1) + ". " + ans.text;
+
+    btn.onclick = () => checkAnswer(btn, index);
+
+    answersDiv.appendChild(btn);
+  });
+}
+
+function checkAnswer(btn, index) {
+  const all = document.querySelectorAll(".answer");
+  all.forEach(b => b.disabled = true);
+
+  const feedback = document.getElementById("feedback");
+  const title = document.getElementById("feedback-title");
+  const text = document.getElementById("feedback-text");
+
+  const correctIndex = filteredQuiz[currentQuestion].answers.findIndex(a => a.correct);
+
+  // ✅ highlight correct answer (FIXED)
+  all.forEach((b, i) => {
+    if (i === correctIndex) {
+      b.classList.add("correct");
+    }
+  });
+
+  if (index === correctIndex) {
+    score++;
+    title.innerText = "Ճիշտ է";
+    text.innerText = "Դուք ճիշտ պատասխանեցիք";
+    feedback.className = "feedback correct-bg show";
+
+    saveCorrectAnswer(filteredQuiz[currentQuestion].id);
+  } else {
+    btn.classList.add("wrong");
+    title.innerText = "Սխալ է";
+    text.innerText = "Ճիշտ պատասխանը նշված է կանաչով";
+    feedback.className = "feedback wrong-bg show";
+  }
+
+  answeredCount++;
+  updateProgress();
+}
+
+function nextQuestion() {
+  document.getElementById("feedback").classList.remove("show");
+
+  currentQuestion++;
+
+  if (currentQuestion < filteredQuiz.length) {
+    setTimeout(loadQuestion, 300);
+  } else {
+    endQuiz();
+  }
+}
+
+function endQuiz() {
+  document.getElementById("question").innerText =
+    `Ավարտվեց 🎉 Ձեր միավորն է ${score}/${filteredQuiz.length}`;
+
+  document.getElementById("answers").innerHTML = "";
+  document.getElementById("image-container").innerHTML = "";
+}
+
+function updateProgress() {
+  const percent = (answeredCount / filteredQuiz.length) * 100;
+
+  document.getElementById("progress-bar").style.width = percent + "%";
+  document.getElementById("progress-text").innerText =
+    answeredCount + "/" + filteredQuiz.length;
+}
+
+function goBack() {
+  window.history.back();
+}
+
+// ✅ Save correct answers globally
+function saveCorrectAnswer(id) {
+  let saved = JSON.parse(localStorage.getItem("answeredCorrectly") || "{}");
+  saved[id] = true;
+  localStorage.setItem("answeredCorrectly", JSON.stringify(saved));
+}
+
+</script>
+
+</body>
+</html>
