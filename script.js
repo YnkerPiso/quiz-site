@@ -5,35 +5,39 @@ from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
 
 console.log("🚀 script loaded");
 
+// ===============================
 // QUIZ DATA
+// ===============================
 let quiz = [];
 let filteredQuiz = [];
 let currentQuestion = 0;
 let score = 0;
 let answeredCount = 0;
 
-// 🔥 NEW
+// RESULT DATA
 let userAnswers = [];
 let startTime = Date.now();
 
 // USER DATA
 let answeredCorrectly = {};
 
-// RANGE
-const START_ID = 1687;
-const END_ID = 1688;
-
-// LOAD
+// ===============================
+// 🔥 LOAD
+// ===============================
 loadQuestions();
 
+// ===============================
 // AUTH
+// ===============================
 onAuthStateChanged(auth, async (user) => {
   if (user) {
     await loadUserProgress();
   }
 });
 
+// ===============================
 // LOAD USER PROGRESS
+// ===============================
 async function loadUserProgress() {
   const user = auth.currentUser;
   if (!user) return;
@@ -46,7 +50,9 @@ async function loadUserProgress() {
   }
 }
 
-// SAVE CORRECT
+// ===============================
+// SAVE CORRECT ANSWER
+// ===============================
 async function saveCorrectAnswer(qId) {
   const user = auth.currentUser;
   if (!user) return;
@@ -62,15 +68,32 @@ async function saveCorrectAnswer(qId) {
   }
 }
 
-// LOAD QUESTIONS
+// ===============================
+// 📚 LOAD QUESTIONS (FIXED)
+// ===============================
 async function loadQuestions() {
-  const res = await fetch("./questions.json?v=" + Date.now());
+  const res = await fetch("./questions.json");
   const data = await res.json();
 
   quiz = data;
 
-  filteredQuiz = quiz.filter(q => q.id >= START_ID && q.id <= END_ID);
-  if (filteredQuiz.length === 0) filteredQuiz = quiz;
+  const start = Number(localStorage.getItem("quizStart"));
+  const end = Number(localStorage.getItem("quizEnd"));
+
+  console.log("🔥 RANGE:", start, end);
+
+  // ✅ STRICT RANGE (NO FALLBACK)
+  if (!isNaN(start) && !isNaN(end)) {
+    filteredQuiz = quiz.filter(q => q.id >= start && q.id <= end);
+  } else {
+    document.body.innerHTML = "❌ Missing quiz range";
+    return;
+  }
+
+  if (filteredQuiz.length === 0) {
+    document.body.innerHTML = "❌ No questions found";
+    return;
+  }
 
   currentQuestion = 0;
   score = 0;
@@ -82,7 +105,9 @@ async function loadQuestions() {
   updateProgress();
 }
 
+// ===============================
 // LOAD QUESTION
+// ===============================
 function loadQuestion() {
   const q = filteredQuiz[currentQuestion];
 
@@ -117,7 +142,9 @@ function loadQuestion() {
   });
 }
 
-// CHECK
+// ===============================
+// CHECK ANSWER
+// ===============================
 function checkAnswer(btn, index) {
   const all = document.querySelectorAll(".answer");
   all.forEach(b => b.disabled = true);
@@ -135,12 +162,11 @@ function checkAnswer(btn, index) {
 
   const isCorrect = index === correctIndex;
 
-  // 🔥 SAVE ANSWER
   userAnswers.push({
     question: currentQ,
     selectedIndex: index,
-    correctIndex: correctIndex,
-    isCorrect: isCorrect
+    correctIndex,
+    isCorrect
   });
 
   if (isCorrect) {
@@ -162,7 +188,7 @@ function checkAnswer(btn, index) {
   updateProgress();
 }
 
-// NEXT
+// ===============================
 window.nextQuestion = function () {
   document.getElementById("feedback").classList.remove("show");
 
@@ -175,10 +201,16 @@ window.nextQuestion = function () {
   }
 };
 
-// END → REDIRECT
+// ===============================
 function endQuiz() {
   const endTime = Date.now();
   const totalTime = Math.floor((endTime - startTime) / 1000);
+
+  // ✅ SAVE LAST PAGE (important fix)
+  const currentPage = localStorage.getItem("currentPage");
+  if (currentPage) {
+    localStorage.setItem("lastPage", currentPage);
+  }
 
   localStorage.setItem("quizResults", JSON.stringify({
     score,
@@ -190,7 +222,7 @@ function endQuiz() {
   window.location.href = "result.html";
 }
 
-// PROGRESS
+// ===============================
 function updateProgress() {
   const total = filteredQuiz.length;
   const percent = total ? (answeredCount / total) * 100 : 0;
@@ -200,7 +232,7 @@ function updateProgress() {
     answeredCount + "/" + total;
 }
 
-// BACK
+// ===============================
 window.goBack = function () {
   window.history.back();
 };

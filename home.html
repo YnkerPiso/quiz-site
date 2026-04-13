@@ -113,7 +113,7 @@ body {
 <body>
 
 <!-- 🔐 Logout -->
-<button class="logout-btn" onclick="logout()">Logout</button>
+<button class="logout-btn" id="logoutBtn">Logout</button>
 
 <!-- 🔥 Circle -->
 <div class="circle" id="progress-circle">
@@ -122,17 +122,40 @@ body {
 
 <!-- Buttons -->
 <div class="button-container">
-  <button class="custom-button" onclick="startQuiz()">
+  <button class="custom-button" id="startBtn">
     <span>Սկսել</span>
     <span class="arrow">›</span>
   </button>
 
-  <button onclick="resetProgress()" class="reset-button">
+  <button id="resetBtn" class="reset-button">
     Reset Progress
   </button>
 </div>
 
-<!-- ✅ EXTERNAL JS -->
+<!-- ✅ SCRIPT -->
+<script>
+document.getElementById("startBtn").onclick = () => {
+  window.location.href = "nextpage.html";
+};
+
+document.getElementById("logoutBtn").onclick = () => {
+  if (window.logout) {
+    window.logout();
+  } else {
+    alert("Logout not loaded");
+  }
+};
+
+document.getElementById("resetBtn").onclick = () => {
+  if (window.resetProgress) {
+    window.resetProgress();
+  } else {
+    alert("Reset not loaded");
+  }
+};
+</script>
+
+<!-- LOAD home.js SEPARATELY -->
 <script type="module" src="home.js"></script>
 
 </body>

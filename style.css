@@ -243,3 +243,48 @@ body {
   background: #ffcdd2;
   border-left: 6px solid #c62828;
 }
+
+.left {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+/* 🔥 MINI CIRCLE */
+.mini-circle {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background: conic-gradient(#0f6d4d 0%, #ddd 0%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
+}
+
+.small-circle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #e6e6e6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: bold;
+  color: #222;
+  position: relative;
+  overflow: hidden;
+}
+
+#question {
+  max-width: 90%;
+  margin: 80px auto 20px auto;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+  line-height: 1.4;
+  font-size: 20px;
+}

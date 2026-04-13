@@ -6,6 +6,7 @@ if (!data) {
 }
 
 // 🔙 BACK BUTTON
+// 🔙 BACK BUTTON (GO BACK TO RESULT)
 window.goBack = function () {
   window.location.href = "result.html";
 };
