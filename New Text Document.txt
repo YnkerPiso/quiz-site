@@ -1,0 +1,3 @@
+dosent work % circle + it needs to work for every acc individually
+
+bottom progressing bar works only if i answer rigt ( alike the score bar that shows at the end )

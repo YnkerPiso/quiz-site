@@ -1,74 +1,95 @@
-// 🔥 FIREBASE IMPORTS
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
-import { getAuth } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc } 
+import { auth, db } from "./data.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-auth.js";
+import { doc, getDoc, setDoc } 
 from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
 
-// CONFIG
-const firebaseConfig = {
-  apiKey: "AIzaSyANzIW_EqzkHVDzpZaD41LkMHugULjsFFk",
-  authDomain: "quiz-app-e973d.firebaseapp.com",
-  projectId: "quiz-app-e973d",
-  storageBucket: "quiz-app-e973d.firebasestorage.app",
-  messagingSenderId: "14843518571",
-  appId: "1:14843518571:web:266c44f0a84001517c5b2e"
-};
+console.log("🚀 script loaded");
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-
-// QUIZ
+// QUIZ DATA
 let quiz = [];
 let filteredQuiz = [];
 let currentQuestion = 0;
 let score = 0;
 let answeredCount = 0;
 
+// 🔥 NEW
+let userAnswers = [];
+let startTime = Date.now();
+
+// USER DATA
 let answeredCorrectly = {};
 
+// RANGE
 const START_ID = 1687;
 const END_ID = 1688;
 
-// LOAD USER DATA
+// LOAD
+loadQuestions();
+
+// AUTH
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    await loadUserProgress();
+  }
+});
+
+// LOAD USER PROGRESS
 async function loadUserProgress() {
   const user = auth.currentUser;
   if (!user) return;
 
-  const snap = await getDoc(doc(db, "users", user.uid));
+  const ref = doc(db, "users", user.uid);
+  const snap = await getDoc(ref);
 
   if (snap.exists()) {
     answeredCorrectly = snap.data().answeredCorrectly || {};
   }
 }
 
-// SAVE
-async function saveProgress() {
+// SAVE CORRECT
+async function saveCorrectAnswer(qId) {
   const user = auth.currentUser;
   if (!user) return;
 
-  await setDoc(doc(db, "users", user.uid), {
-    answeredCorrectly
-  }, { merge: true });
+  if (!answeredCorrectly[qId]) {
+    answeredCorrectly[qId] = true;
+
+    const ref = doc(db, "users", user.uid);
+
+    await setDoc(ref, {
+      answeredCorrectly
+    }, { merge: true });
+  }
 }
 
 // LOAD QUESTIONS
-fetch("questions.json")
-  .then(res => res.json())
-  .then(async data => {
-    quiz = data;
-    filteredQuiz = quiz.filter(q => q.id >= START_ID && q.id <= END_ID);
+async function loadQuestions() {
+  const res = await fetch("./questions.json?v=" + Date.now());
+  const data = await res.json();
 
-    await loadUserProgress();
+  quiz = data;
 
-    loadQuestion();
-    updateProgress();
-  });
+  filteredQuiz = quiz.filter(q => q.id >= START_ID && q.id <= END_ID);
+  if (filteredQuiz.length === 0) filteredQuiz = quiz;
+
+  currentQuestion = 0;
+  score = 0;
+  answeredCount = 0;
+  userAnswers = [];
+  startTime = Date.now();
+
+  loadQuestion();
+  updateProgress();
+}
 
 // LOAD QUESTION
 function loadQuestion() {
   const q = filteredQuiz[currentQuestion];
-  if (!q) return endQuiz();
+
+  if (!q) {
+    endQuiz();
+    return;
+  }
 
   document.getElementById("question").innerText = q.question;
 
@@ -85,35 +106,55 @@ function loadQuestion() {
   const answersDiv = document.getElementById("answers");
   answersDiv.innerHTML = "";
 
-  q.answers.forEach((ans, i) => {
+  q.answers.forEach((ans, index) => {
     const btn = document.createElement("button");
     btn.className = "answer";
-    btn.innerText = `${i + 1}. ${ans.text}`;
-    btn.onclick = () => checkAnswer(btn, ans.correct);
+    btn.innerText = (index + 1) + ". " + ans.text;
+
+    btn.onclick = () => checkAnswer(btn, index);
+
     answersDiv.appendChild(btn);
   });
 }
 
 // CHECK
-function checkAnswer(btn, isCorrect) {
+function checkAnswer(btn, index) {
   const all = document.querySelectorAll(".answer");
   all.forEach(b => b.disabled = true);
 
-  const q = filteredQuiz[currentQuestion];
+  const feedback = document.getElementById("feedback");
+  const title = document.getElementById("feedback-title");
+  const text = document.getElementById("feedback-text");
+
+  const currentQ = filteredQuiz[currentQuestion];
+  const correctIndex = currentQ.answers.findIndex(a => a.correct);
 
   all.forEach((b, i) => {
-    if (q.answers[i].correct) b.classList.add("correct");
+    if (i === correctIndex) b.classList.add("correct");
   });
 
-  const feedback = document.getElementById("feedback");
+  const isCorrect = index === correctIndex;
+
+  // 🔥 SAVE ANSWER
+  userAnswers.push({
+    question: currentQ,
+    selectedIndex: index,
+    correctIndex: correctIndex,
+    isCorrect: isCorrect
+  });
 
   if (isCorrect) {
     score++;
-    answeredCorrectly[q.id] = true;
-    saveProgress();
+    saveCorrectAnswer(currentQ.id);
+
+    title.innerText = "Ճիշտ է";
+    text.innerText = "Դուք ճիշտ պատասխանեցիք";
     feedback.className = "feedback correct-bg show";
   } else {
     btn.classList.add("wrong");
+
+    title.innerText = "Սխալ է";
+    text.innerText = "Ճիշտ պատասխանը նշված է կանաչով";
     feedback.className = "feedback wrong-bg show";
   }
 
@@ -122,8 +163,9 @@ function checkAnswer(btn, isCorrect) {
 }
 
 // NEXT
-function nextQuestion() {
+window.nextQuestion = function () {
   document.getElementById("feedback").classList.remove("show");
+
   currentQuestion++;
 
   if (currentQuestion < filteredQuiz.length) {
@@ -131,24 +173,34 @@ function nextQuestion() {
   } else {
     endQuiz();
   }
-}
+};
 
-// END
+// END → REDIRECT
 function endQuiz() {
-  document.getElementById("question").innerText =
-    `Ավարտվեց 🎉 ${score}/${filteredQuiz.length}`;
-  document.getElementById("answers").innerHTML = "";
+  const endTime = Date.now();
+  const totalTime = Math.floor((endTime - startTime) / 1000);
+
+  localStorage.setItem("quizResults", JSON.stringify({
+    score,
+    total: filteredQuiz.length,
+    answers: userAnswers,
+    time: totalTime
+  }));
+
+  window.location.href = "result.html";
 }
 
 // PROGRESS
 function updateProgress() {
-  const percent = (answeredCount / filteredQuiz.length) * 100;
+  const total = filteredQuiz.length;
+  const percent = total ? (answeredCount / total) * 100 : 0;
+
   document.getElementById("progress-bar").style.width = percent + "%";
   document.getElementById("progress-text").innerText =
-    answeredCount + "/" + filteredQuiz.length;
+    answeredCount + "/" + total;
 }
 
 // BACK
-function goBack() {
+window.goBack = function () {
   window.history.back();
-}
+};

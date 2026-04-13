@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Result</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<!-- 🔙 BACK -->
+<button class="back-btn" onclick="goBack()">←</button>
+
+<h1>Արդյունք</h1>
+
+<div class="result-box">
+  
+  <div id="circle" class="circle">
+    <span id="percent">0%</span>
+  </div>
+
+  <div>
+    <p>Ժամանակ: <span id="time"></span></p>
+    <p>✅ Ճիշտ: <span id="correct"></span></p>
+    <p>❌ Սխալ: <span id="wrong"></span></p>
+  </div>
+
+</div>
+
+<div id="grid" class="grid"></div>
+
+<script src="result.js"></script>
+
+</body>
+</html>
