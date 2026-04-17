@@ -1,3 +1,2 @@
-dosent work % circle + it needs to work for every acc individually
+start making json for each question, starting with optics
 
-bottom progressing bar works only if i answer rigt ( alike the score bar that shows at the end )
